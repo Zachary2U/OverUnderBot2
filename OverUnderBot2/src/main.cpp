@@ -1,96 +1,18 @@
 #include "main.h"
+#include "organization.h"
+#include "chassis.h"
 //#include <iostream>
 
-
-//Define Controller
-pros::Controller Master = (pros::E_CONTROLLER_MASTER);
-
-//Define Inertial Sensor
-pros::IMU Gyro(5);
-
-//Define Motor's
-	//Drive Left Side
-pros::Motor LeftBack(1, pros::E_MOTOR_GEAR_GREEN, true);
-pros::Motor LeftHalf(2, pros::E_MOTOR_GEAR_GREEN, false);
-pros::Motor LeftFront(3, pros::E_MOTOR_GEAR_GREEN, true);
-	//Drive Right Side
-pros::Motor RightBack(8, pros::E_MOTOR_GEAR_GREEN, false);
-pros::Motor RightHalf(9, pros::E_MOTOR_GEAR_GREEN, true);
-pros::Motor RightFront(10, pros::E_MOTOR_GEAR_GREEN, false);
-	//Flystick
-pros::Motor FlystickRachetSide(14, pros::E_MOTOR_GEAR_GREEN, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor FlystickNonRachetSide(19, pros::E_MOTOR_GEAR_GREEN, true, pros::E_MOTOR_ENCODER_DEGREES);
-	//Flywheel
-pros::Motor Flywheel(20, pros::E_MOTOR_GEAR_BLUE, true);
-
-//Declare Motor Groups
-	//Drive
-pros::Motor_Group LeftDB({LeftBack, LeftHalf, LeftFront});
-pros::Motor_Group RightDB({RightBack, RightHalf, RightFront});
-pros::Motor_Group DB({LeftBack, LeftHalf, LeftFront, RightBack, RightHalf, RightFront});
-	//Flystick
-pros::Motor_Group Flystick({FlystickNonRachetSide, FlystickRachetSide});
-
-
-//Define API Ports
-	//Pneumatics
-pros::ADIDigitalOut Wings('A', false);
-pros::ADIDigitalOut Rachet('B', false);
-	//Potentiometer
-pros::ADIPotentiometer AutoSelector('H', pros::E_ADI_POT_V2);
-
-//Global Variables
-int flystick= 0;
-
-void driverControl(){
-	double power = Master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-	double turn = Master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-
-	LeftDB.move(power + turn);
-	RightDB.move(power - turn);
-}
-//Flystick Programs
-void FlystickExtend(){
-	while(FlystickNonRachetSide.get_position() != 120){
-		Flystick.move(100);
-	}
-	Flystick.brake();
-}
-
-
-//Flywheel speed
-void flywheelRun(double volts){}
-
-
-void flywheelHeightUp(){
-	if (flystick < 2) {
-		flystick++;
-	}
-}
-
-void flywheelHeightDown(){
-	if (flystick > 0) {
-		flystick--;
-	}
-}
-/**
+/*
  * Runs initialization code. This occurs as soon as the program is started.
  *
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	Flystick.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
-}
-bool fly = false;
-void flywheelRun(){
-	fly = Master.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
-	if(fly){
-		Flywheel.move(105);
-	}
-	else{
-		Flywheel.move(0);
-	}
+	Flystick.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	Flywheel.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	//pros::lcd::initialize();
 }
 
 
@@ -125,15 +47,8 @@ void competition_initialize() {}
  */
 void autonomous() {
 
-	Flystick.move(30);
-	pros::delay(75);
-	Flystick.brake();
-	DB.move(-30);
-	pros::delay(1500);
-	DB.brake();
-
-
 }
+	
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -149,59 +64,27 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
-/*void moveFlystickTo(double degrees) {
-	Flystick.move_absolute(degrees, 100);
-}
-void flystickThread() {
-	while (true) {
-		switch (flystick) {
-			case 0:
-				moveFlystickTo(0); 
-				break;
-			case 1: 
-				moveFlystickTo(-105); 
-				break;
-			case 2: 
-				moveFlystickTo(-150); 
-				break;
-		}
-		pros::delay(20);
-	}
-}*/
+bool flywheelSpin = false;
 void opcontrol() {
-	//pros::Task flystickWork(flystickThread);
+	//pros::Task screenPrint(printToScreen);
+	pros::Task temps(printTemp);
 	while (true) {
-
+		//screenPrint;
 		driverControl();
-		flywheelRun();
-		/*if (Master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-			flywheelHeightUp();
+		flywheelPID(flywheelSpin);
+		wings();
+		flystick();
+		intake();
+		if(SkillsSelector.get_value()){
+			temps;
 		}
-		if (Master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-			flywheelHeightDown();
-		}*/
 
-
+		//Flywheel movement
 		if(Master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-			Flystick.move(60);
+			flywheelSpin = true;
 		}
 		else if(Master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-			Flystick.move(-60);
+			flywheelSpin = false;
 		}
-		else{
-			Flystick.brake();
-		}
-
-		if(Master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
-			Rachet.set_value(true);
-		}
-
-		if(Master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-			Wings.set_value(false);
-		}
-		else if(Master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
-			Wings.set_value(true);
-		}
-
 	}
 }
