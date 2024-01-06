@@ -1,8 +1,11 @@
 #include "api.h"
 #include "Objects.h"
+#include "Chassis.h"
 
 void printToScreen(){
-	pros::lcd::print(0, "Heading: %d", Gyro.get_heading());
+	while(true){
+		pros::lcd::print(0, "Heading: %d", Gyro.get_heading());
+	}
 }
 
 

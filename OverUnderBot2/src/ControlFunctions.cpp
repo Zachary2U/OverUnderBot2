@@ -45,15 +45,17 @@ void flystick(){
 
 //PID loop for flywheel
 
-void flywheelPID(bool flywheelSpin){
+void flywheelPID(double speed){
 	double volts = 100;
-	while(flywheelSpin){
-		Flywheel.move(volts);
-		if(Flywheel.get_actual_velocity() * 72/12 < 2400){
-			volts++;
-		}
-		else if(Flywheel.get_actual_velocity() * 72/12 > 2600){
-			volts--;
-		}
+	Flywheel.move(volts);
+	if(Flywheel.get_actual_velocity() * 72/12 < speed - 100){
+		volts += 0.1;
 	}
+	else if(Flywheel.get_actual_velocity() * 72/12 > speed + 100){
+		volts += 0.1;
+	}
+}
+
+void flywheelTask(){
+	flywheelPID(2000);
 }

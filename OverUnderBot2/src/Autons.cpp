@@ -7,7 +7,7 @@ PID linearPID(0, 0, 0);
 
 //Unique Pointers
 
-Chassis drive(
+Chassis drive = Chassis(
     std::make_unique<pros::MotorGroup>(std::initializer_list<pros::Motor>({LeftBack, LeftHalf, LeftFront})), 
     std::make_unique<pros::MotorGroup>(std::initializer_list<pros::Motor>({RightBack, RightHalf, RightFront})), 
     linearPID, 

@@ -15,7 +15,9 @@ void printTemp();
 
 //Declare Flywheel PID
 
-void flywheelPID(bool flywheelSpin);
+void flywheelPID(double speed);
+
+void flywheelTask();
 
 //Declare Autons
 
@@ -25,3 +27,7 @@ void leftAuton();
 
 
 //Information printing methods
+
+void printToScreen();
+
+void printTemp();

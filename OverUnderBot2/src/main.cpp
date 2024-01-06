@@ -1,7 +1,19 @@
 #include "main.h"
 #include "organization.h"
 #include "chassis.h"
+#include <initializer_list>
 //#include <iostream>
+
+//Create PID objects
+PID Linear(20, 0, 2);
+PID Angular(1, 0, 0);
+
+
+//Create Chassis object
+Chassis Drive(std::make_unique<pros::MotorGroup>(std::initializer_list<pros::Motor>{LeftBack, LeftHalf, LeftFront}),
+std::make_unique<pros::MotorGroup>(std::initializer_list<pros::Motor>{RightBack, RightHalf, RightFront}),
+Linear, 
+Angular);
 
 /*
  * Runs initialization code. This occurs as soon as the program is started.
@@ -10,6 +22,8 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	pros::lcd::initialize();
+	Gyro.set_rotation(0);
 	Flystick.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	Flywheel.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	//pros::lcd::initialize();
@@ -46,7 +60,9 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	//pros::Task screenPrint(printToScreen);
 
+	Drive.turn(90, 10000);
 }
 	
 
@@ -66,24 +82,25 @@ void autonomous() {
 
 bool flywheelSpin = false;
 void opcontrol() {
-	//pros::Task screenPrint(printToScreen);
-	pros::Task temps(printTemp);
+	pros::Task flywheel(flywheelTask);
 	while (true) {
 		//screenPrint;
 		driverControl();
-		flywheelPID(flywheelSpin);
+		if(flywheelSpin){
+			flywheel;
+		}
 		wings();
 		flystick();
 		intake();
-		if(SkillsSelector.get_value()){
-			temps;
+		if(Selector.get_value()){
+			pros::Task temps(printTemp);
 		}
 
 		//Flywheel movement
 		if(Master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
 			flywheelSpin = true;
 		}
-		else if(Master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
+		if(Master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
 			flywheelSpin = false;
 		}
 	}

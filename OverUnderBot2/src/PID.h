@@ -1,3 +1,4 @@
+#pragma once
 #include "api.h"
 #include "Objects.h"
 #include <vector>
@@ -19,14 +20,16 @@ class PID{
         kD = 0;
     }
 
-    public: PID(double KP, double KI, double KD){
+    public: 
+    
+    inline PID(double KP, double KI, double KD){
         kP = KP;
         kI = KI;
         kD = KD;
     }
 
-    double update(double reading, bool isTurn){
-        error = reading;
+    inline double update(double reading){
+        error = setPoint - reading;
         double time = pros::millis() / 1000.0;
         double deltaError = error - pastError;
         double deltaTime = time - pastTime;
@@ -39,24 +42,16 @@ class PID{
         return p + i + d;
     }
 
-    double getError(){
+    inline double getError(){
         return error;
     }
 
-    double getMotorAvgPosition(std::vector<double> left, std::vector<double> right){
-        double rightReadings = 0;
-        double leftReadings = 0;
-        double denominator = 6;
-        for(double m : left){
-            leftReadings += m;
-        }
-        for(double m : right){
-            rightReadings += m;
-        }
-        return (rightReadings + leftReadings) / denominator;
+    inline double getSetPoint() {
+        return setPoint;
     }
 
-    void setSetPoint(double point, std::vector<double> left, std::vector<double> right){
-        setPoint = point + getMotorAvgPosition(right, left);
+    inline void setSetPoint(double point){
+        setPoint = point;
+        error = setPoint;
     }
 };
