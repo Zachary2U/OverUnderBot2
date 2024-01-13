@@ -1,13 +1,6 @@
 #include "api.h"
 #include "Objects.h"
-#include "Chassis.h"
-
-void printToScreen(){
-	while(true){
-		pros::lcd::print(0, "Heading: %d", Gyro.get_heading());
-	}
-}
-
+//#include "Chassis.h"
 
 //Print motor temperatures for convinience
 void printTemp(){

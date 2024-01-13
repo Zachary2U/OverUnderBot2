@@ -1,3 +1,5 @@
+#include "lemlib/api.hpp"
+
 //Used soley to declare functions so main file is more organized
 
 //Driver control methods

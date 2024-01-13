@@ -47,12 +47,16 @@ void flystick(){
 
 void flywheelPID(double speed){
 	double volts = 100;
+	if(speed == 0){
+		Flywheel.brake();
+		return;
+	}
 	Flywheel.move(volts);
 	if(Flywheel.get_actual_velocity() * 72/12 < speed - 100){
-		volts += 0.1;
+		volts += 1;
 	}
 	else if(Flywheel.get_actual_velocity() * 72/12 > speed + 100){
-		volts += 0.1;
+		volts += 1;
 	}
 }
 
