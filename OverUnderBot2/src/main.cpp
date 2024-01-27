@@ -67,33 +67,132 @@ lemlib::Chassis Drive(drivetrain, lateralController, angularController, sensors)
     angularPID
     );*/
 
+
+void turn(double theta, bool forwards, double timeout, double maxSpeed){
+	theta = theta * -1 ;
+	//Account for current degrees rotated
+	theta += Drive.getPose().theta;
+
+	// Find coordinates accounting for current position
+	double x = 1000 * (cos(theta) + Drive.getPose().x);
+  	double y = 1000 * (sin(theta) + Drive.getPose().y);
+
+	//Execution
+	Drive.turnTo(x, y, timeout, forwards, maxSpeed);
+}
+
 // Instantiate Right side auton
-void rightAuton(){
+void oldRightAuton(){
     Intake.move(127);
-    Drive.moveToPoint(0, 6, 800);
-    pros::delay(1000);
-    Drive.moveToPoint(0, -28, 1000, false, 60); 
-    Drive.turnTo(-50, 42, 1000, true, 127);
+    Drive.moveToPoint(0, 8, 1000, true, 127);
+    pros::delay(600);
+    Drive.moveToPoint(2, -23, 1200, false, 70, false);
+    Drive.moveToPose(5, -35, -17, 1200, {.forwards = false});
+    Drive.moveToPose(6.7, -37.8, -36, 1500, {.forwards = false}, false);
     Wings.set_value(true);
-    Drive.moveToPoint(10.5, -44, 1500, false);
-    Drive.turnTo(cos(Drive.getPose().x - 4) * 100, -sin(Drive.getPose().y + 3) * 100, 1000);
-    Drive.turnTo(Drive.getPose().x, -sin(Drive.getPose().y - 9) * 100, 1000, false);
+    Drive.moveToPoint(10.4, -43, 1000, false, 127, false);
+    Drive.moveToPose(14.5, -45, -85, 1200, {.forwards = false, .maxSpeed = 75}, false);
     Wings.set_value(false);
-    pros::delay(1500);
-    LeftDB.move(40);
-    pros::delay(300);
-    DB.move(-127);
-    pros::delay(1200);
-    Intake.move(-20);
+    Drive.moveToPoint(64.5, -66, 1000, false, 127, true);
+    Drive.waitUntil(12);
+    Wings.set_value(false);
+    Drive.moveToPoint(23, -48, 1000);
+    Drive.turnTo(Drive.getPose().x * 100, Drive.getPose().y, 1000, true, 90, false);
     pros::delay(500);
-    Intake.brake();
+    Intake.move(-127);
+    pros::delay(550);
+    Drive.moveToPoint(64.5, -66, 1000);
+    Drive.turnTo(Drive.getPose().x * 100, Drive.getPose().y, 1000, false, 90, false);
 }
 
 
+//Instantiate Right side auton
+void newRightAuton(){
+    Intake.brake();
+    Drive.moveToPoint(0, 42, 1500);
+    Drive.turnTo(1000, 42, 1000, true, 90, false);
+    Intake.move(-127);
+    pros::delay(600);
+    Drive.moveToPoint(-40, 33, 1500, true, 100);
+    Intake.move(127);
+    Drive.moveToPose( -1, 54, -90, 2000, {.forwards = false, .chasePower = 3});
+    Drive.waitUntil(12);
+    Wings.set_value(true);
+    Drive.moveToPoint(24, 52, 1000, false);
+    Drive.moveToPoint(5, 52, 1000);
+    Wings.set_value(false);
+    Drive.turnTo(100, 52, 1000, true, 90, false);
+    Intake.move(-127);
+    pros::delay(600);
+    Drive.turnTo(-100, 52, 1000, true);
+    Intake.move(127);
+    Drive.moveToPoint(-40, 57, 1000);
+    Drive.turnTo(100, 52, 1000, true);
+    Drive.moveToPoint(24, 52, 1000);
+    Drive.waitUntil(16);
+    Intake.move(-127);
+}
+
 
 // Instantiate Left side auton
-void leftAuton(){
-    
+void oldLeftAutonAWP(){
+    Drive.moveToPose(25.4, 35, 54, 1000, {}, false);
+    pros::delay(500);
+    Wings.set_value(true);
+    Drive.moveToPoint(4, 15, 1000, false);
+    Drive.turnTo(0, 100, 1000);
+    Wings.set_value(false);
+    Flystick.move(127);
+    pros::delay(1100);
+    Flystick.brake();
+    Drive.moveToPoint(-5, -40, 1000, false, 80, false);
+    Flystick.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+}
+
+// Instantiate Left side auton (Focused on scoring points)
+void newLeftAuton(){
+    Drive.moveToPoint(0, -44, 1000, false);
+    Drive.turnTo(-1000, -44, 1000, false, 127, false);
+    Wings.set_value(true);
+    Drive.moveToPoint(-34, -44, 1000, false, 127, false);
+    Wings.set_value(false);
+    Drive.moveToPose(13, -1, 50, 3000, {.chasePower = 5, .minSpeed = 40}, false);
+    Drive.turnTo(-2, 23, 1000, false, 127, false);
+    Drive.moveToPoint(1, 15, 1000, false, 50);
+    Wings.set_value(true);
+    Drive.waitUntilDone();
+    Wings.set_value(false);
+    pros::delay(1000);
+    Drive.turnTo(-100, 0, 1000, false, 55);
+    pros::delay(500);
+    Drive.moveToPoint(-31, 12, 1500, false, 90);
+}
+
+void mattLeftAuto(){
+    //decent tested
+    Drive.moveToPoint( 0,  -38, 1000, false);
+    //not tested 
+    Drive.moveToPose(10,-40, 90, 1000, {.forwards = false} );
+    //def mot tested
+    /*Wings.set_value(true);
+    Drive.moveToPoint(-15,-40,1000,false);
+    Drive.moveToPoint(-10,-40,1000,true);
+    Drive.moveToPoint(-15,-40,1000,false);
+    Wings.set_value(false);
+    Drive.moveToPoint(-10,-40,1000,true);
+    Drive.moveToPose(0,-20,45,1000,{.forwards=true});
+    Drive.moveToPose()*/
+
+}
+
+void skillsAuto(){
+    DB.move(-20);
+    Flystick.move(127);
+    pros::delay(500);
+    Flystick.brake();
+    flywheelPID(1800);
+    //pros::delay(48000); // Delay for matchloading
+    Drive.moveToPose(-8, -45, 0, 1000, {.forwards = false});
 }
 
 void printToScreen(){
@@ -165,7 +264,16 @@ void competition_initialize() {}
  */
 void autonomous() {
 	//pros::Task screenPrint(printToScreen);
-	rightAuton();
+	//leftAutonAWP(); //AWP Left Side Auton
+    //rightAuton(); //12-15 Point Right Side 
+    //mattLeftAuto();
+    
+
+
+    //ACTUALLY USED
+    //skillsAuto(); //Skills!
+    //newLeftAuton();
+    newRightAuton();
 }
 	
 
@@ -185,6 +293,7 @@ void autonomous() {
  
 void opcontrol() {
     pros::Task screenPrint2(printToScreen);
+    Flystick.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	while (true) {
 		//screenPrint;
 		driverControl();
