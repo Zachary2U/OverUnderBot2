@@ -185,7 +185,7 @@ void mattLeftAuto(){
 
 }
 
-void skillsAuto(){
+void oldSkillsAuto(){
     DB.move(-20);
     Flystick.move(127);
     pros::delay(500);
@@ -194,6 +194,11 @@ void skillsAuto(){
     //pros::delay(48000); // Delay for matchloading
     Drive.moveToPose(-8, -45, 0, 1000, {.forwards = false});
 }
+
+void newSkillsAuto(){
+    Drive.moveToPose(-54, -28, 90, 1300, {.forwards = false});
+}
+
 
 void printToScreen(){
         lemlib::Pose pose = Drive.getPose(); // get the current position of the robot
@@ -267,13 +272,14 @@ void autonomous() {
 	//leftAutonAWP(); //AWP Left Side Auton
     //rightAuton(); //12-15 Point Right Side 
     //mattLeftAuto();
+    //oldSkillsAuto();
     
 
 
     //ACTUALLY USED
-    //skillsAuto(); //Skills!
+    newSkillsAuto(); //Skills!
     //newLeftAuton();
-    newRightAuton();
+    //newRightAuton();
 }
 	
 
